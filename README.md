@@ -11,23 +11,27 @@ projects.
 
 ## Install
 
-Place this repository in your Oh My Zsh custom plugins directory:
+#### [Oh My Zsh](https://github.com/ohmyzsh/ohmyzsh)
+
+1. Clone this repository in Oh My Zsh's custom plugins directory:
 
 ```zsh
-~/.oh-my-zsh/custom/plugins/project-jump
+git clone git@github.com:Vnuchoke/project-jump.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/project-jump
 ```
 
-Enable it in `~/.zshrc`:
+2. Activate the plugin in `~/.zshrc`:
 
 ```zsh
-plugins=(... project-jump)
+plugins=( [plugins...] project-jump)
 ```
 
-Configure project roots before Oh My Zsh loads plugins:
+3. Configure project roots before Oh My Zsh loads plugins:
 
 ```zsh
 PROJECT_PATHS=(~/src ~/work ~/"dir with spaces")
 ```
+
+4. Restart zsh, such as by opening a new terminal session.
 
 ## Excluding non-project directories
 

@@ -3,7 +3,7 @@
 `project-jump` is an Oh My Zsh plugin for jumping to project directories by
 name. It follows the same core model as the built-in `pj` plugin: configure
 one or more project roots in `PROJECT_PATHS`, then run `pj <name>` to jump to a
-direct child directory.
+project directory.
 
 This plugin adds `PROJECT_JUMP_EXCLUDED_DIRS`, an exact-path exclusion list for
 directories that live under a project root but should not be treated as
@@ -35,8 +35,8 @@ PROJECT_PATHS=(~/src ~/work ~/"dir with spaces")
 
 ## Excluding non-project directories
 
-Use `PROJECT_JUMP_EXCLUDED_DIRS` for directories that are direct children of a
-project root but should be ignored by `pj` and by completion:
+Use `PROJECT_JUMP_EXCLUDED_DIRS` for directories under a project root that
+should be ignored by `pj` and by completion:
 
 ```zsh
 PROJECT_JUMP_EXCLUDED_DIRS=(
@@ -48,6 +48,36 @@ PROJECT_JUMP_EXCLUDED_DIRS=(
 
 Exclusions are exact paths after normalization. Excluding `~/work/archive` does
 not exclude `~/src/archive`.
+
+## Nested worktree roots
+
+If a configured root itself is named `worktrees`, the plugin scans it as a
+nested worktree root with the shape `<tag>/<repo>-<tag>` instead of treating its
+direct children as projects.
+
+Example:
+
+```zsh
+PROJECT_PATHS=(
+  ~/code/work/worktrees
+  ~/code/work/projects/napopravku
+)
+```
+
+With a directory like:
+
+```text
+~/code/work/worktrees/TW-4650/telemed-api-TW-4650
+```
+
+you can jump directly with:
+
+```zsh
+pj telemed-api-TW-4650
+```
+
+This also works in completion, so there is no need to list every individual
+`TW-*` directory in `PROJECT_PATHS`.
 
 ## Commands
 
@@ -66,6 +96,9 @@ pj archive   # skips ~/code/archive and uses ~/work/archive when it exists
 
 If a project exists only in excluded directories, `pj` prints an error and
 returns status `1`.
+
+For nested worktree roots, the project name is the actual worktree directory
+name, for example `telemed-api-TW-4650`.
 
 ### `pjo my-project`
 

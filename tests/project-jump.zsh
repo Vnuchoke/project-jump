@@ -48,6 +48,9 @@ make_fixture() {
     "$root/work/scratch" \
     "$root/work/shared" \
     "$root/other/shared" \
+    "$root/worktrees/TW-4650/telemed-api-TW-4650" \
+    "$root/worktrees/TW-release-26-4/pipeline-admin-api-TW-release-26-4" \
+    "$root/worktrees/archive/ignored-worktree" \
     "$root/space base/with space"
 
 }
@@ -177,6 +180,39 @@ test_completion_excludes_configured_directories() {
   assert_eq $'api\nnot-a-project\nshared' "$output" "completion hides excluded project directories"
 }
 
+test_nested_worktree_root_resolves_projects() {
+  local root output
+
+  make_fixture
+  root="$FIXTURE_ROOT"
+  output="$({
+    PROJECT_PATHS=("$root/worktrees")
+    PROJECT_JUMP_EXCLUDED_DIRS=()
+    pj telemed-api-TW-4650
+    print -r -- "$?|$PWD"
+  })"
+
+  assert_eq "0|$root/worktrees/TW-4650/telemed-api-TW-4650" "$output" "pj resolves nested worktrees from a worktrees root"
+}
+
+test_nested_worktree_completion_uses_shared_backend() {
+  local root output
+
+  make_fixture
+  root="$FIXTURE_ROOT"
+  PROJECT_PATHS=("$root/worktrees")
+  PROJECT_JUMP_EXCLUDED_DIRS=("$root/worktrees/archive/ignored-worktree")
+
+  compadd() {
+    [[ "$1" == "--" ]] && shift
+    print -rl -- "$@"
+  }
+
+  output="$(_pj | sort)"
+
+  assert_eq $'pipeline-admin-api-TW-release-26-4\ntelemed-api-TW-4650' "$output" "completion includes nested worktrees and excludes nested ignored paths"
+}
+
 main() {
   load_plugin
 
@@ -186,6 +222,8 @@ main() {
   test_project_name_with_spaces
   test_open_mode_uses_editor_without_changing_directory
   test_completion_excludes_configured_directories
+  test_nested_worktree_root_resolves_projects
+  test_nested_worktree_completion_uses_shared_backend
 
   if (( FAILURES > 0 )); then
     print -ru2 -- "${FAILURES} failure(s) in ${ASSERTIONS} assertion(s)"
